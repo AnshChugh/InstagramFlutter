@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Post {
@@ -9,7 +8,7 @@ class Post {
   final String postId;
   final DateTime datePublished;
   final String profImage;
-  final int likes;
+  final List likes;
 
   const Post(
       {required this.datePublished,
