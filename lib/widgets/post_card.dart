@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:instagram_flutter/models/user.dart';
+import 'package:instagram_flutter/providers/user_provider.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:instagram_flutter/widgets/like_animation.dart';
+import 'package:provider/provider.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final snap;
   const PostCard({
     super.key,
@@ -9,7 +13,14 @@ class PostCard extends StatelessWidget {
   });
 
   @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  bool isLikeAnimating = false;
+  @override
   Widget build(BuildContext context) {
+    final User user = Provider.of<UserProvider>(context).getUser;
     return Container(
       color: mobileBackgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -23,7 +34,7 @@ class PostCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 16,
-                  backgroundImage: NetworkImage(snap['profImage']),
+                  backgroundImage: NetworkImage(widget.snap['profImage']),
                 ),
                 Expanded(
                     child: Padding(
@@ -33,7 +44,7 @@ class PostCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        snap['username'],
+                        widget.snap['username'],
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       )
                     ],
@@ -70,19 +81,55 @@ class PostCard extends StatelessWidget {
             ),
           ),
           // Image Section
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.35,
-            width: double.infinity,
-            child: Image.network(snap['postUrl'], fit: BoxFit.cover),
+          GestureDetector(
+            onDoubleTap: () {
+              setState(() {
+                isLikeAnimating = true;
+              });
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.35,
+                  width: double.infinity,
+                  child:
+                      Image.network(widget.snap['postUrl'], fit: BoxFit.cover),
+                ),
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 400),
+                  opacity: isLikeAnimating? 1 : 0,
+                  child: 
+                    LikeAnimation(
+                      child: const Icon(
+                        Icons.favorite,
+                        color: Colors.white,
+                        size: 120,
+                      ),
+                      isAnimating: isLikeAnimating,
+                      duration: const Duration(milliseconds: 500),
+                      onEnd: () {
+                        setState(() {
+                          isLikeAnimating = false;
+                        });
+                      },
+                    ),
+                )
+              ],
+            ),
           ),
 
           //Like comment Section
           Row(
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.favorite),
-                color: Colors.red,
+              LikeAnimation(
+                isAnimating: widget.snap['likes'].contains(user.uid),
+                smallLike: true,
+                child: IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.favorite),
+                  color: Colors.red,
+                ),
               ),
               IconButton(
                 onPressed: () {},
