@@ -8,6 +8,7 @@ import 'package:instagram_flutter/screens/comment_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/like_animation.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class PostCard extends StatefulWidget {
@@ -90,7 +91,11 @@ class _PostCardState extends State<PostCard> {
                                   'Delete',
                                 ]
                                     .map((e) => InkWell(
-                                          onTap: () {},
+                                          onTap: () async {
+                                            await FirestoreMethods().deletePost(
+                                                widget.snap['postId']);
+                                            Navigator.of(context).pop();
+                                          },
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 12, horizontal: 16),
@@ -210,13 +215,13 @@ class _PostCardState extends State<PostCard> {
                         ),
                         children: [
                           TextSpan(
-                            text: 'username',
+                            text: widget.snap['username'],
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           TextSpan(
-                            text: '    Description to be replaced',
+                            text: '    ${widget.snap['description']}',
                           ),
                         ]),
                   ),
@@ -235,7 +240,8 @@ class _PostCardState extends State<PostCard> {
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 4),
                   child: Text(
-                    '22/12/2023',
+                    DateFormat.yMMMd()
+                          .format(widget.snap['datePublished'].toDate()),
                     style: const TextStyle(fontSize: 16, color: secondaryColor),
                   ),
                 ),
