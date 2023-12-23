@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/providers/user_provider.dart';
 import 'package:instagram_flutter/resources/firestore_methods.dart';
 import 'package:instagram_flutter/screens/comment_screen.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:instagram_flutter/utils/utils.dart';
 import 'package:instagram_flutter/widgets/like_animation.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +22,27 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
+  int commentLen = 0;
+  @override
+  void initState() {
+    super.initState();
+    getComments();
+  }
+
+  void getComments() async {
+    try {
+      QuerySnapshot snap = await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(widget.snap['postId'])
+          .collection('comments')
+          .get();
+      commentLen = snap.docs.length;
+    } catch (err) {
+      showSnackBar(err.toString(), context);
+    }
+    setState(() {});
+  }
+
   bool isLikeAnimating = false;
   @override
   Widget build(BuildContext context) {
@@ -142,8 +166,8 @@ class _PostCardState extends State<PostCard> {
                 ),
               ),
               IconButton(
-                onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => CommentsScreen())),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => CommentsScreen(snap: widget.snap))),
                 icon: const Icon(Icons.comment_outlined),
               ),
               IconButton(
@@ -202,7 +226,7 @@ class _PostCardState extends State<PostCard> {
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Text(
-                      'View All 200 comments',
+                      'View All ${commentLen} comments',
                       style:
                           const TextStyle(fontSize: 16, color: secondaryColor),
                     ),

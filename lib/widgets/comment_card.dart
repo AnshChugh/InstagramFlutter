@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/utils/colors.dart';
+import 'package:intl/intl.dart';
 
 class CommentsCard extends StatefulWidget {
-  const CommentsCard({super.key});
+  final snap;
+  const CommentsCard({super.key, required this.snap});
 
   @override
   State<CommentsCard> createState() => _CommentsCardState();
@@ -16,8 +18,7 @@ class _CommentsCardState extends State<CommentsCard> {
       child: Row(
         children: [
           CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1682685797277-f2bf89b24017?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+            backgroundImage: NetworkImage(widget.snap['profilePic']),
           ),
           Expanded(
             child: Padding(
@@ -31,21 +32,23 @@ class _CommentsCardState extends State<CommentsCard> {
                         style: const TextStyle(color: primaryColor),
                         children: [
                           TextSpan(
-                            text: 'username',
+                            text: widget.snap['name'],
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           TextSpan(
-                            text: 'aome text for the description',
+                            text: '  ${widget.snap['text']}',
                           ),
                         ]),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 4),
                     child: Text(
-                      '23/12/24',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w100),
+                      DateFormat.yMMMd()
+                          .format(widget.snap['datePublished'].toDate()),
+                      style: const TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w100),
                     ),
                   ),
                 ],
